@@ -1,7 +1,9 @@
 import { randomUUID } from 'crypto';
+import { CreateAlbumDto } from 'src/albums/dto/create-album.dto';
+import { UpdateAlbumDto } from 'src/albums/dto/update-album.dto';
 import { CreateArtistDto } from 'src/artists/dto/create-artist.dto';
 import { UpdateArtistDto } from 'src/artists/dto/update-artist.dto';
-import { Artist, Track, User } from 'src/interfaces';
+import { Artist, Track, User, Album } from 'src/interfaces';
 import { CreateTrackDto } from 'src/tracks/dto/create-track.dto';
 import { UpdateTrackDto } from 'src/tracks/dto/update-track.dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
@@ -10,13 +12,21 @@ class DB {
   private _users: User[];
   private _tracks: Track[];
   private _artists: Artist[];
-  private _albums: any[];
+  private _albums: Album[];
 
   constructor() {
     this._users = [];
     this._tracks = [];
     this._artists = [];
     this._albums = [];
+  }
+
+  private findItemIndexById<T extends Array<User | Track | Artist | Album>>(
+    id: string,
+    items: T,
+  ) {
+    const index = items.findIndex((item) => item.id === id);
+    return index;
   }
 
   getAllUsers() {
@@ -45,7 +55,7 @@ class DB {
   }
 
   updateUser(id: string, newPassword: string) {
-    const userIndex = this.findUserIndexById(id);
+    const userIndex = this.findItemIndexById(id, this._users);
 
     const user = this._users[userIndex];
 
@@ -64,14 +74,9 @@ class DB {
   }
 
   deleteUser(id: string) {
-    const userIndex = this.findUserIndexById(id);
+    const userIndex = this.findItemIndexById(id, this._users);
 
     this._users.splice(userIndex, 1);
-  }
-
-  private findUserIndexById(id: string) {
-    const userIndex = this._users.findIndex((user) => user.id === id);
-    return userIndex;
   }
 
   getTracks() {
@@ -91,14 +96,8 @@ class DB {
     return track;
   }
 
-  private findTrackIndexById(id: string) {
-    const trackIndex = this._tracks.findIndex((track) => track.id === id);
-
-    return trackIndex;
-  }
-
   updateTrack(id: string, trackDto: UpdateTrackDto) {
-    const trackIndex = this.findTrackIndexById(id);
+    const trackIndex = this.findItemIndexById(id, this._tracks);
     const track = this._tracks[trackIndex];
 
     const updatedTrack: Track = {
@@ -112,7 +111,7 @@ class DB {
   }
 
   deleteTrack(id: string) {
-    const trackIndex = this.findTrackIndexById(id);
+    const trackIndex = this.findItemIndexById(id, this._tracks);
 
     this._tracks.splice(trackIndex, 1);
   }
@@ -132,13 +131,8 @@ class DB {
     return artist;
   }
 
-  private findArtistIndexById(id: string) {
-    const artistIndex = this._artists.findIndex((artist) => artist.id === id);
-    return artistIndex;
-  }
-
   updateArtist(id: string, artistDto: UpdateArtistDto) {
-    const artistIndex = this.findArtistIndexById(id);
+    const artistIndex = this.findItemIndexById(id, this._artists);
     const artist = this._artists[artistIndex];
 
     const updatedArtist: Artist = {
@@ -151,23 +145,65 @@ class DB {
     return updatedArtist;
   }
 
-  private setArtistIdToNull(
+  private setPropIdToNull<T extends Array<Track | Album>>(
     id: string,
-    storage: typeof this._tracks | typeof this._albums,
+    propKey: 'artistId' | 'albumId',
+    storage: T,
   ) {
     storage.forEach((item, index, storage) => {
-      if (item.artistId === id) {
-        storage[index].artistId = null;
+      if (item[propKey] === id) {
+        storage[index][propKey] = null;
       }
     });
   }
 
   deleteArtist(id: string) {
-    const artistIndex = this.findArtistIndexById(id);
-    this.setArtistIdToNull(id, this._tracks);
-    this.setArtistIdToNull(id, this._albums);
+    const artistIndex = this.findItemIndexById(id, this._artists);
+    this.setPropIdToNull(id, 'artistId', this._tracks);
+    this.setPropIdToNull(id, 'artistId', this._albums);
 
     this._artists.splice(artistIndex, 1);
+  }
+
+  getAlbums() {
+    return this._albums;
+  }
+
+  getAlbum(id: string) {
+    const album = this._albums.find((album) => album.id === id);
+    return album;
+  }
+
+  createAlbum(albumDto: CreateAlbumDto) {
+    const album = {
+      id: randomUUID(),
+      ...albumDto,
+    };
+
+    this._albums.push(album);
+
+    return album;
+  }
+
+  updateAlbum(id: string, albumDto: UpdateAlbumDto) {
+    const albumIndex = this.findItemIndexById(id, this._albums);
+    const album = this._albums[albumIndex];
+
+    const updatedAlbum = {
+      id: album.id,
+      ...albumDto,
+    };
+
+    this._albums[albumIndex] = updatedAlbum;
+
+    return updatedAlbum;
+  }
+
+  deleteAlbum(id: string) {
+    const albumIndex = this.findItemIndexById(id, this._albums);
+    this.setPropIdToNull(id, 'albumId', this._tracks);
+
+    this._albums.splice(albumIndex, 1);
   }
 }
 
