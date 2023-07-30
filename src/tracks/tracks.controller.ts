@@ -10,11 +10,11 @@ import {
   ValidationPipe,
   Put,
   HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { TracksService } from './tracks.service';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
-import { StatusCodes } from 'http-status-codes';
 
 @Controller('track')
 export class TracksController {
@@ -58,7 +58,7 @@ export class TracksController {
   }
 
   @Delete(':id')
-  @HttpCode(StatusCodes.NO_CONTENT)
+  @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
     const track = this.tracksService.findOne(id);
 

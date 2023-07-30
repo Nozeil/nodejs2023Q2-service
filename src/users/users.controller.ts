@@ -13,12 +13,12 @@ import {
   ClassSerializerInterceptor,
   ForbiddenException,
   HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import { StatusCodes } from 'http-status-codes';
 
 @Controller('user')
 export class UsersController {
@@ -83,7 +83,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @HttpCode(StatusCodes.NO_CONTENT)
+  @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
     const user = this.usersService.findOne(id);
 

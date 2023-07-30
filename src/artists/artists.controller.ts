@@ -10,11 +10,11 @@ import {
   Put,
   ParseUUIDPipe,
   HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { ArtistsService } from './artists.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
-import { StatusCodes } from 'http-status-codes';
 
 @Controller('artist')
 export class ArtistsController {
@@ -58,7 +58,7 @@ export class ArtistsController {
   }
 
   @Delete(':id')
-  @HttpCode(StatusCodes.NO_CONTENT)
+  @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
     const artist = this.artistsService.findOne(id);
 
