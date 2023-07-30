@@ -118,6 +118,7 @@ class DB {
 
   deleteTrack(id: string) {
     const trackIndex = this.findItemIndexById(id, this._tracks);
+    this.deleteTrackFromFavorites(id);
 
     this._tracks.splice(trackIndex, 1);
   }
@@ -167,6 +168,7 @@ class DB {
     const artistIndex = this.findItemIndexById(id, this._artists);
     this.setPropIdToNull(id, 'artistId', this._tracks);
     this.setPropIdToNull(id, 'artistId', this._albums);
+    this.deleteArtistFromFavorites(id);
 
     this._artists.splice(artistIndex, 1);
   }
@@ -208,6 +210,7 @@ class DB {
   deleteAlbum(id: string) {
     const albumIndex = this.findItemIndexById(id, this._albums);
     this.setPropIdToNull(id, 'albumId', this._tracks);
+    this.deleteAlbumFromFavorites(id);
 
     this._albums.splice(albumIndex, 1);
   }
