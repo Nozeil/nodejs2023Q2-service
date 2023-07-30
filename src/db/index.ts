@@ -1,12 +1,16 @@
 import { randomUUID } from 'crypto';
-import { User } from 'src/interfaces';
+import { Track, User } from 'src/interfaces';
+import { CreateTrackDto } from 'src/tracks/dto/create-track.dto';
+import { UpdateTrackDto } from 'src/tracks/dto/update-track.dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 
 class DB {
   private _users: User[];
+  private _tracks: Track[];
 
   constructor() {
     this._users = [];
+    this._tracks = [];
   }
 
   getAllUsers() {
@@ -62,6 +66,49 @@ class DB {
   private findUserIndexById(id: string) {
     const userIndex = this._users.findIndex((user) => user.id === id);
     return userIndex;
+  }
+
+  getTracks() {
+    const tracks = this._tracks;
+    return tracks;
+  }
+
+  getTrack(id: string) {
+    const track = this._tracks.find((track) => track.id === id);
+    return track;
+  }
+
+  createTrack(trackDto: CreateTrackDto) {
+    const track = { id: randomUUID(), ...trackDto };
+    this._tracks.push(track);
+
+    return track;
+  }
+
+  private findTrackIndexById(id: string) {
+    const trackIndex = this._tracks.findIndex((track) => track.id === id);
+
+    return trackIndex;
+  }
+
+  updateTrack(id: string, trackDto: UpdateTrackDto) {
+    const trackIndex = this.findTrackIndexById(id);
+    const track = this._tracks[trackIndex];
+
+    const updatedTrack: Track = {
+      id: track.id,
+      ...trackDto,
+    };
+
+    this._tracks[trackIndex] = updatedTrack;
+
+    return updatedTrack;
+  }
+
+  deleteTrack(id: string) {
+    const trackIndex = this.findTrackIndexById(id);
+
+    this._tracks.splice(trackIndex, 1);
   }
 }
 
