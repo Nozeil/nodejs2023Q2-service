@@ -1,5 +1,7 @@
 import { randomUUID } from 'crypto';
-import { Track, User } from 'src/interfaces';
+import { CreateArtistDto } from 'src/artists/dto/create-artist.dto';
+import { UpdateArtistDto } from 'src/artists/dto/update-artist.dto';
+import { Artist, Track, User } from 'src/interfaces';
 import { CreateTrackDto } from 'src/tracks/dto/create-track.dto';
 import { UpdateTrackDto } from 'src/tracks/dto/update-track.dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
@@ -7,10 +9,14 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 class DB {
   private _users: User[];
   private _tracks: Track[];
+  private _artists: Artist[];
+  private _albums: any[];
 
   constructor() {
     this._users = [];
     this._tracks = [];
+    this._artists = [];
+    this._albums = [];
   }
 
   getAllUsers() {
@@ -109,6 +115,59 @@ class DB {
     const trackIndex = this.findTrackIndexById(id);
 
     this._tracks.splice(trackIndex, 1);
+  }
+
+  getArtists() {
+    return this._artists;
+  }
+
+  getArtist(id: string) {
+    const artist = this._artists.find((artist) => artist.id === id);
+    return artist;
+  }
+
+  createArtist(artistDto: CreateArtistDto) {
+    const artist = { id: randomUUID(), ...artistDto };
+    this._artists.push(artist);
+    return artist;
+  }
+
+  private findArtistIndexById(id: string) {
+    const artistIndex = this._artists.findIndex((artist) => artist.id === id);
+    return artistIndex;
+  }
+
+  updateArtist(id: string, artistDto: UpdateArtistDto) {
+    const artistIndex = this.findArtistIndexById(id);
+    const artist = this._artists[artistIndex];
+
+    const updatedArtist: Artist = {
+      id: artist.id,
+      ...artistDto,
+    };
+
+    this._artists[artistIndex] = updatedArtist;
+
+    return updatedArtist;
+  }
+
+  private setArtistIdToNull(
+    id: string,
+    storage: typeof this._tracks | typeof this._albums,
+  ) {
+    storage.forEach((item, index, storage) => {
+      if (item.artistId === id) {
+        storage[index].artistId = null;
+      }
+    });
+  }
+
+  deleteArtist(id: string) {
+    const artistIndex = this.findArtistIndexById(id);
+    this.setArtistIdToNull(id, this._tracks);
+    this.setArtistIdToNull(id, this._albums);
+
+    this._artists.splice(artistIndex, 1);
   }
 }
 
