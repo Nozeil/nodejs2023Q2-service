@@ -1,0 +1,49 @@
+services:
+  db:
+    container_name: db
+    build: ./postgresql
+    networks:
+      - db-net
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - db-logs:/var/log
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    env_file:
+      - .env
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    restart: on-failure
+    command: -p ${POSTGRES_PORT} -c log_statement=all
+  app:
+    container_name: app
+    build: .
+    networks:
+      - db-net
+    depends_on:
+      - db
+    working_dir: /app
+    volumes:
+      - ./src:/app/src:bind
+    ports:
+      - ${PORT}:${PORT}
+    env_file:
+      - .env
+    restart: on-failure
+
+networks:
+  db-net:
+    ipam: 
+      driver: default
+      config: 
+        - subnet: 182.28.0.0/16
+          ip_range: 182.28.5.0/24
+          gateway: 182.28.5.254
+          aux_addresses:
+            host1: 182.28.1.5
+            host2: 182.28.1.6
+            host3: 182.28.1.7
+
+volumes:
+  db-data:
+  db-logs:
