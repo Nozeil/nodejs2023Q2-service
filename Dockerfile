@@ -6,6 +6,9 @@ COPY ["package.json", "package-lock.json*", "./"]
 
 RUN npm install
 
+COPY ./prisma prisma
+RUN npx prisma generate
+
 COPY . .
 
-CMD [ "npm", "run", "start:dev" ]
+CMD [ "npm", "run", "start:dev"]

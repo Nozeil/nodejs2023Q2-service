@@ -1,6 +1,6 @@
 services:
   db:
-    container_name: db
+    container_name: ${POSTGRES_DB}
     build: ./postgresql
     networks:
       - db-net
@@ -14,7 +14,6 @@ services:
     environment:
       - PGDATA=/var/lib/postgresql/data/pgdata
     restart: on-failure
-    command: -p ${POSTGRES_PORT} -c log_statement=all
   app:
     container_name: app
     build: .
@@ -33,6 +32,8 @@ services:
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin4
+    depends_on:
+      - db
     networks:
       - db-net
     restart: always
@@ -48,13 +49,13 @@ networks:
     ipam: 
       driver: default
       config: 
-        - subnet: 182.28.0.0/16
-          ip_range: 182.28.5.0/24
-          gateway: 182.28.5.254
+        - subnet: ${POSTGRES_SUBNET}
+          ip_range: ${POSTGRES_IP_RANGE}
+          gateway: ${POSTGRES_GATEWAY}
           aux_addresses:
-            host1: 182.28.1.5
-            host2: 182.28.1.6
-            host3: 182.28.1.7
+            host1: ${POSTGRES_AUX_ADDRESSES_HOST_1}
+            host2: ${POSTGRES_AUX_ADDRESSES_HOST_2}
+            host3: ${POSTGRES_AUX_ADDRESSES_HOST_3}
 
 volumes:
   db-data:
