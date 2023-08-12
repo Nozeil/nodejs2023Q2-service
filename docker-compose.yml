@@ -30,6 +30,18 @@ services:
     env_file:
       - .env
     restart: on-failure
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4
+    networks:
+      - db-net
+    restart: always
+    ports:
+      - ${PGADMIN_HOST_PORT}:${PGADMIN_CONTAINER_PORT}
+    env_file:
+      - .env
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
 
 networks:
   db-net:
@@ -47,3 +59,4 @@ networks:
 volumes:
   db-data:
   db-logs:
+  pgadmin-data:
