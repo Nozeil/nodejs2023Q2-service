@@ -21,18 +21,20 @@ export class AlbumsController {
   constructor(private readonly albumsService: AlbumsService) {}
 
   @Post()
-  create(@Body(ValidationPipe) createAlbumDto: CreateAlbumDto) {
-    return this.albumsService.create(createAlbumDto);
+  async create(@Body(ValidationPipe) createAlbumDto: CreateAlbumDto) {
+    const album = await this.albumsService.create(createAlbumDto);
+    return album;
   }
 
   @Get()
-  findAll() {
-    return this.albumsService.findAll();
+  async findAll() {
+    const albums = await this.albumsService.findAll();
+    return albums;
   }
 
   @Get(':id')
-  findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-    const album = this.albumsService.findOne(id);
+  async findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    const album = await this.albumsService.findOne(id);
 
     if (!album) {
       throw new NotFoundException();
@@ -42,30 +44,30 @@ export class AlbumsController {
   }
 
   @Put(':id')
-  update(
+  async update(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body(ValidationPipe) updateAlbumDto: UpdateAlbumDto,
   ) {
-    const album = this.albumsService.findOne(id);
+    const album = await this.albumsService.findOne(id);
 
     if (!album) {
       throw new NotFoundException();
     }
 
-    const updatedAlbum = this.albumsService.update(id, updateAlbumDto);
+    const updatedAlbum = await this.albumsService.update(id, updateAlbumDto);
 
     return updatedAlbum;
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-    const album = this.albumsService.findOne(id);
+  async remove(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    const album = await this.albumsService.findOne(id);
 
     if (!album) {
       throw new NotFoundException();
     }
 
-    return this.albumsService.remove(id);
+    await this.albumsService.remove(id);
   }
 }

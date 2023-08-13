@@ -68,6 +68,6 @@ export class ArtistsController {
       throw new NotFoundException();
     }
 
-    return this.artistsService.remove(id);
+    await this.artistsService.remove(id);
   }
 }
