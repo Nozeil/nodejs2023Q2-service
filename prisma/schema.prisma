@@ -8,10 +8,16 @@ datasource db {
 }
 
 model User {
-  id        String  @id @default(uuid())
+  id        String   @id @default(uuid())
   login     String
   password  String
   version   Int      @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Artist {
+  id     String  @id @default(uuid())
+  name   String
+  grammy Boolean
 }

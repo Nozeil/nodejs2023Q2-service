@@ -20,7 +20,7 @@ export class UsersService {
 
   async findOne(id: string) {
     const user = await this.prisma.user.findUnique({
-      where: { id: id },
+      where: { id },
     });
     return user;
   }
@@ -28,7 +28,7 @@ export class UsersService {
   async update(id: string, newPassword: string) {
     const user = await this.prisma.user.update({
       data: { password: newPassword, version: { increment: 1 } },
-      where: { id: id },
+      where: { id },
     });
     return user;
   }
@@ -36,7 +36,7 @@ export class UsersService {
   async remove(id: string) {
     await this.prisma.user.delete({
       where: {
-        id: id,
+        id,
       },
     });
   }
