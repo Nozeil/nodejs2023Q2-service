@@ -1,36 +1,66 @@
 import { Injectable } from '@nestjs/common';
-import db from 'src/db';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class FavsService {
-  findAll() {
-    return db.getFavorites();
+  constructor(private prisma: PrismaService) {}
+  async findAll() {
+    const albums = await this.prisma.favoriteToAlbum.findMany({
+      select: { album: true },
+    });
+    const tracks = await this.prisma.favoriteToTrack.findMany({
+      select: { track: true },
+    });
+    const artists = await this.prisma.favoriteToArtist.findMany({
+      select: { artist: true },
+    });
+    const favorites = { albums, tracks, artists };
+
+    return favorites;
   }
 
-  addTrackToFavorites(id: string) {
-    db.addTrackToFavorites(id);
+  async addTrackToFavorites(id: string) {
+    await this.prisma.favoriteToTrack.create({
+      data: {
+        track: { connect: { id } },
+      },
+    });
     return `Track with ${id} was added to favorites`;
   }
 
-  addAlbumToFavorites(id: string) {
-    db.addAlbumToFavorites(id);
+  async addAlbumToFavorites(id: string) {
+    await this.prisma.favoriteToAlbum.create({
+      data: {
+        album: { connect: { id } },
+      },
+    });
     return `Album with ${id} was added to favorites`;
   }
 
-  addArtistToFavorites(id: string) {
-    db.addArtistToFavorites(id);
+  async addArtistToFavorites(id: string) {
+    await this.prisma.favoriteToArtist.create({
+      data: {
+        artist: { connect: { id } },
+      },
+    });
     return `Artist with ${id} was added to favorites`;
   }
 
-  removeTrack(id: string) {
-    return db.deleteTrackFromFavorites(id);
+  async removeTrack(id: string) {
+    await this.prisma.favoriteToTrack.delete({
+      where: { trackId: id },
+    });
   }
 
-  removeAlbum(id: string) {
-    return db.deleteAlbumFromFavorites(id);
+  async removeAlbum(id: string) {
+    await this.prisma.favoriteToAlbum.delete({
+      where: { albumId: id },
+    });
   }
 
-  removeArtist(id: string) {
-    return db.deleteArtistFromFavorites(id);
+  async removeArtist(id: string) {
+    await this.prisma.favoriteToArtist.delete({
+      where: { artistId: id },
+    });
   }
 }

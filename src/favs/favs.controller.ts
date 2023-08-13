@@ -8,11 +8,14 @@ import {
   UnprocessableEntityException,
   HttpStatus,
   HttpCode,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { FavsService } from './favs.service';
-import { TracksService } from 'src/tracks/tracks.service';
+import { Favorites } from './entities/favs.entity';
 import { AlbumsService } from 'src/albums/albums.service';
 import { ArtistsService } from 'src/artists/artists.service';
+import { TracksService } from 'src/tracks/tracks.service';
 
 @Controller('favs')
 export class FavsController {
@@ -23,31 +26,34 @@ export class FavsController {
     private readonly artistService: ArtistsService,
   ) {}
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get()
-  findAll() {
-    return this.favsService.findAll();
+  async findAll() {
+    const favorites = await this.favsService.findAll();
+    const serializedFavorites = new Favorites(favorites);
+    return serializedFavorites;
   }
 
   @Post('track/:id')
-  addTrackToFavorites(
+  async addTrackToFavorites(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ) {
-    const track = this.tracksService.findOne(id);
+    const track = await this.tracksService.findOne(id);
 
     if (!track) {
       throw new UnprocessableEntityException();
     }
 
-    const message = this.favsService.addTrackToFavorites(id);
+    const message = await this.favsService.addTrackToFavorites(id);
 
     return message;
   }
 
   @Post('album/:id')
-  addAlbumToFavorites(
+  async addAlbumToFavorites(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ) {
-    const album = this.albumsService.findOne(id);
+    const album = await this.albumsService.findOne(id);
 
     if (!album) {
       throw new UnprocessableEntityException();
@@ -59,10 +65,10 @@ export class FavsController {
   }
 
   @Post('artist/:id')
-  addArtistToFavorites(
+  async addArtistToFavorites(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ) {
-    const artist = this.artistService.findOne(id);
+    const artist = await this.artistService.findOne(id);
 
     if (!artist) {
       throw new UnprocessableEntityException();
@@ -75,30 +81,36 @@ export class FavsController {
 
   @Delete('track/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  removeTrack(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-    const isDeleted = this.favsService.removeTrack(id);
-
-    if (!isDeleted) {
+  async removeTrack(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ) {
+    try {
+      await this.favsService.removeTrack(id);
+    } catch {
       throw new UnprocessableEntityException();
     }
   }
 
   @Delete('album/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  removeAlbum(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-    const isDeleted = this.favsService.removeAlbum(id);
-
-    if (!isDeleted) {
+  async removeAlbum(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ) {
+    try {
+      await this.favsService.removeAlbum(id);
+    } catch {
       throw new UnprocessableEntityException();
     }
   }
 
   @Delete('artist/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  removeArtist(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-    const isDeleted = this.favsService.removeArtist(id);
-
-    if (!isDeleted) {
+  async removeArtist(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ) {
+    try {
+      await this.favsService.removeArtist(id);
+    } catch (error) {
       throw new UnprocessableEntityException();
     }
   }
