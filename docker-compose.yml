@@ -16,12 +16,14 @@ services:
     restart: on-failure
   app:
     container_name: app
-    build: .
+    build: 
+      dockerfile: Dockerfile
+      context: .
+      target: lightweight_development
     networks:
       - db-net
     depends_on:
       - db
-    working_dir: /app
     volumes:
       - ./src:/app/src:bind
     ports:
