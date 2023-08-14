@@ -22,7 +22,7 @@ npm install
 Before running application create .env file from .env.example.
 
 ```
-npm start
+docker compose up
 ```
 
 After starting the app on port (4000 as default) you can open
