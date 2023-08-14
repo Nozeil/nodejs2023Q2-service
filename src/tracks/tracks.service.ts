@@ -1,27 +1,55 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
-import db from 'src/db';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class TracksService {
-  create(createTrackDto: CreateTrackDto) {
-    return db.createTrack(createTrackDto);
+  constructor(private prisma: PrismaService) {}
+  async create(createTrackDto: CreateTrackDto) {
+    const { name, duration, albumId, artistId } = createTrackDto;
+    const track = await this.prisma.track.create({
+      data: {
+        name,
+        duration,
+        album: albumId ? { connect: { id: albumId } } : undefined,
+        artist: artistId ? { connect: { id: artistId } } : undefined,
+      },
+    });
+    return track;
   }
 
-  findAll() {
-    return db.getTracks();
+  async findAll() {
+    const tracks = await this.prisma.track.findMany();
+    return tracks;
   }
 
-  findOne(id: string) {
-    return db.getTrack(id);
+  async findOne(id: string) {
+    const track = await this.prisma.track.findUnique({
+      where: { id },
+    });
+    return track;
   }
 
-  update(id: string, updateTrackDto: UpdateTrackDto) {
-    return db.updateTrack(id, updateTrackDto);
+  async update(
+    id: string,
+    { albumId, artistId, duration, name }: UpdateTrackDto,
+  ) {
+    const track = await this.prisma.track.update({
+      data: {
+        name,
+        duration,
+        album: albumId ? { connect: { id: albumId } } : undefined,
+        artist: artistId ? { connect: { id: artistId } } : undefined,
+      },
+      where: { id },
+    });
+    return track;
   }
 
-  remove(id: string) {
-    return db.deleteTrack(id);
+  async remove(id: string) {
+    await this.prisma.track.delete({
+      where: { id },
+    });
   }
 }

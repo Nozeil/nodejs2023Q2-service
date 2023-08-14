@@ -22,7 +22,7 @@ npm install
 Before running application create .env file from .env.example.
 
 ```
-npm start
+docker compose up
 ```
 
 After starting the app on port (4000 as default) you can open
@@ -72,3 +72,9 @@ npm run format
 Press <kbd>F5</kbd> to debug.
 
 For more information, visit: https://code.visualstudio.com/docs/editor/debugging
+
+### Vulnerabilities scanning
+
+```
+npm run scan
+```

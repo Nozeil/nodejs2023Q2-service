@@ -26,8 +26,8 @@ export class UsersController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Post()
-  create(@Body(ValidationPipe) createUserDto: CreateUserDto) {
-    const user = this.usersService.create(createUserDto);
+  async create(@Body(ValidationPipe) createUserDto: CreateUserDto) {
+    const user = await this.usersService.create(createUserDto);
     const serializedUser = new User(user);
 
     return serializedUser;
@@ -35,8 +35,8 @@ export class UsersController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
-  findAll() {
-    const users = this.usersService.findAll();
+  async findAll() {
+    const users = await this.usersService.findAll();
     const serializedUsers = users.map((user) => new User(user));
 
     return serializedUsers;
@@ -44,8 +44,8 @@ export class UsersController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get(':id')
-  findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-    const user = this.usersService.findOne(id);
+  async findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    const user = await this.usersService.findOne(id);
 
     if (!user) {
       throw new NotFoundException();
@@ -58,12 +58,12 @@ export class UsersController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Put(':id')
-  update(
+  async update(
     @Param('id', new ParseUUIDPipe({ version: '4' }))
     id: string,
     @Body(ValidationPipe) updateUserDto: UpdateUserDto,
   ) {
-    const user = this.usersService.findOne(id);
+    const user = await this.usersService.findOne(id);
 
     if (!user) {
       throw new NotFoundException();
@@ -75,7 +75,7 @@ export class UsersController {
       throw new ForbiddenException();
     }
 
-    const updatedUser = this.usersService.update(id, newPassword);
+    const updatedUser = await this.usersService.update(id, newPassword);
 
     const serializedUser = new User(updatedUser);
 
@@ -84,13 +84,13 @@ export class UsersController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-    const user = this.usersService.findOne(id);
+  async remove(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    const user = await this.usersService.findOne(id);
 
     if (!user) {
       throw new NotFoundException();
     }
 
-    return this.usersService.remove(id);
+    await this.usersService.remove(id);
   }
 }

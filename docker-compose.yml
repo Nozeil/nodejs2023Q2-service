@@ -1,0 +1,65 @@
+services:
+  db:
+    container_name: ${POSTGRES_DB}
+    build: ./postgresql
+    networks:
+      - db-net
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - db-logs:/var/log
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    env_file:
+      - .env
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    restart: on-failure
+  app:
+    container_name: app
+    build: 
+      dockerfile: Dockerfile
+      context: .
+      target: lightweight_development
+    networks:
+      - db-net
+    depends_on:
+      - db
+    volumes:
+      - ./src:/app/src:bind
+    ports:
+      - ${PORT}:${PORT}
+    env_file:
+      - .env
+    restart: on-failure
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4
+    depends_on:
+      - db
+    networks:
+      - db-net
+    restart: always
+    ports:
+      - ${PGADMIN_HOST_PORT}:${PGADMIN_CONTAINER_PORT}
+    env_file:
+      - .env
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+networks:
+  db-net:
+    ipam: 
+      driver: default
+      config: 
+        - subnet: ${POSTGRES_SUBNET}
+          ip_range: ${POSTGRES_IP_RANGE}
+          gateway: ${POSTGRES_GATEWAY}
+          aux_addresses:
+            host1: ${POSTGRES_AUX_ADDRESSES_HOST_1}
+            host2: ${POSTGRES_AUX_ADDRESSES_HOST_2}
+            host3: ${POSTGRES_AUX_ADDRESSES_HOST_3}
+
+volumes:
+  db-data:
+  db-logs:
+  pgadmin-data:
