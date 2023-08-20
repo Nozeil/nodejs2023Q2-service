@@ -14,4 +14,8 @@ export class LoggingService extends ConsoleLogger implements LoggerService {
   logResponse(code: number, body: string) {
     this.log(`Response: status code - ${code}, body - ${body}`);
   }
+
+  errorResponse(message: string) {
+    this.error(`Error response: ${message}`);
+  }
 }

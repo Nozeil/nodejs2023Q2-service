@@ -1,4 +1,4 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import { HttpStatus, Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { LoggingService } from 'src/logging/logging.service';
 import { inspect } from 'util';
@@ -19,7 +19,13 @@ export class LoggingMiddleware implements NestMiddleware {
 
     res.send = (body) => {
       const stringifyedBody = inspect(body);
-      this.logger.logResponse(res.statusCode, stringifyedBody);
+
+      if (res.statusCode >= HttpStatus.BAD_REQUEST) {
+        this.logger.errorResponse(stringifyedBody);
+      } else {
+        this.logger.logResponse(res.statusCode, stringifyedBody);
+      }
+
       return bindedSend(body);
     };
 
