@@ -29,6 +29,14 @@ export class LoggingMiddleware implements NestMiddleware {
       return bindedSend(body);
     };
 
+    process.on('uncaughtException', (err) => {
+      this.logger.uncaughtExceptionError(err.name, err.message, err.stack);
+    });
+
+    process.on('unhandledRejection', (reason) => {
+      this.logger.unhandledRejectionError(reason);
+    });
+
     next();
   }
 }
