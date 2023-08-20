@@ -5,9 +5,12 @@ import { resolve } from 'path';
 import { readFile } from 'fs/promises';
 import { OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import * as yaml from 'js-yaml';
+import { LoggingService } from './logging/logging.service';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+  });
   const configService = app.get(ConfigService);
   const port: number = configService.get('port');
 
@@ -18,6 +21,7 @@ async function bootstrap() {
 
   SwaggerModule.setup('doc', app, document);
 
+  app.useLogger(new LoggingService());
   await app.listen(port, () => console.log(`Server started on ${port}`));
 }
 bootstrap();
