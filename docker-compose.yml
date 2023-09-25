@@ -16,7 +16,7 @@ services:
     restart: on-failure
   app:
     container_name: app
-    build: 
+    build:
       dockerfile: Dockerfile
       context: .
       target: lightweight_development
@@ -48,9 +48,9 @@ services:
 
 networks:
   db-net:
-    ipam: 
+    ipam:
       driver: default
-      config: 
+      config:
         - subnet: ${POSTGRES_SUBNET}
           ip_range: ${POSTGRES_IP_RANGE}
           gateway: ${POSTGRES_GATEWAY}

@@ -9,7 +9,6 @@ import { FavsModule } from './favs/favs.module';
 import { ConfigModule } from '@nestjs/config';
 import { config } from './config';
 import { LoggingMiddleware } from './middleware/logging.middleware';
-import { LoggingService } from './logging/logging.service';
 import { LoggingModule } from './logging/logging.module';
 
 @Module({
@@ -26,7 +25,7 @@ import { LoggingModule } from './logging/logging.module';
     LoggingModule,
   ],
   controllers: [AppController],
-  providers: [AppService, LoggingService],
+  providers: [AppService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
